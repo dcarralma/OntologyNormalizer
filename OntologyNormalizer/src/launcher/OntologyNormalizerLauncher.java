@@ -19,18 +19,18 @@ public class OntologyNormalizerLauncher {
 		String outputOntologyPath = args[1];
 
 		System.out.println("Normalizing Ontology (" + LocalTime.now() + ")");
-		System.out.println(" * Input path: " + inputOntologyPath);
+		System.out.println(" * Input path:" + " " + inputOntologyPath);
 
 		OWLOntology ontology = loadOntology(inputOntologyPath);
 		if (ontology != null) {
-			System.out.println("  - Input ontology size: " + ontology.getAxiomCount());
+			System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
 			NFOntology nfOntology = OntologyNormalizer.normalizeOnt(ontology);
 
-			System.out.println(" * Output path: " + outputOntologyPath);
+			System.out.println(" * Output path:" + " " + outputOntologyPath);
 			nfOntology.toFile(outputOntologyPath);
-			System.out.println("  - Normalized ontology sizet: " + nfOntology.getAxioms().size());
-			System.out.println("   + TBox size: " + nfOntology.getTBoxAxioms().size());
-			System.out.println("   + ABox size: " + nfOntology.getABoxAxioms().size());
+			System.out.println("  - Normalized ontology sizet:" + " " + nfOntology.getAxioms().size());
+			System.out.println("   + TBox size:" + " " + nfOntology.getTBoxAxioms().size());
+			System.out.println("   + ABox size:" + " " + nfOntology.getABoxAxioms().size());
 		}
 	}
 
