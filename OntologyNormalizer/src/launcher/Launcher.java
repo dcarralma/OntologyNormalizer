@@ -15,7 +15,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import normalizers.OntologyNormalizer;
 
-public class OntologyNormalizerLauncher {
+public class Launcher {
 
 	public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException, OWLOntologyCreationException {
 		String inputOntologyPath = args[0];
