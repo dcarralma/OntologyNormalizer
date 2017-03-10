@@ -2,14 +2,17 @@ package launcher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalTime;
+import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import nfOntology.NFOntology;
 import normalizers.OntologyNormalizer;
 
 public class OntologyNormalizerLauncher {
@@ -24,13 +27,10 @@ public class OntologyNormalizerLauncher {
 		OWLOntology ontology = loadOntology(inputOntologyPath);
 		if (ontology != null) {
 			System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
-			NFOntology nfOntology = OntologyNormalizer.normalizeOnt(ontology);
-
+			Set<OWLAxiom> normalizedAxs = OntologyNormalizer.filterAndNormalizeAxioms(ontology);
 			System.out.println(" * Output path:" + " " + outputOntologyPath);
-			nfOntology.toFile(outputOntologyPath);
-			System.out.println("  - Normalized ontology sizet:" + " " + nfOntology.getAxioms().size());
-			System.out.println("   + TBox size:" + " " + nfOntology.getTBoxAxioms().size());
-			System.out.println("   + ABox size:" + " " + nfOntology.getABoxAxioms().size());
+			saveAxsAsOWLOntology(normalizedAxs, outputOntologyPath);
+			System.out.println("  - Normalized axioms count:" + " " + normalizedAxs.size());
 		}
 	}
 
@@ -44,5 +44,19 @@ public class OntologyNormalizerLauncher {
 			System.out.println(" -> " + ontologyFilePath + "\n");
 		}
 		return ontology;
+	}
+
+	public static void saveAxsAsOWLOntology(Set<OWLAxiom> normalizedAxs, String filePath) {
+		try {
+			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+			OWLOntology owlAPIOntology = manager.createOntology();
+			for (OWLAxiom axiom : normalizedAxs)
+				manager.addAxiom(owlAPIOntology, axiom);
+			manager.saveOntology(owlAPIOntology, new FileOutputStream(filePath));
+		} catch (Exception e) {
+			System.out.println(e);
+			System.out.println("WARNING!!! Exception at toFile() at NFOntology.java." + "\n");
+			e.printStackTrace();
+		}
 	}
 }

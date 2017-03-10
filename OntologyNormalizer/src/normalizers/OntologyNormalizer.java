@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAsymmetricObjectPropertyAxiom;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDifferentIndividualsAxiom;
@@ -38,7 +39,6 @@ import org.semanticweb.owlapi.model.OWLTransitiveObjectPropertyAxiom;
 import org.semanticweb.owlapi.model.SWRLRule;
 
 import launcher.Srd;
-import nfOntology.NFOntology;
 import uk.ac.manchester.cs.owl.owlapi.OWLDisjointObjectPropertiesAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectAllValuesFromImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectHasSelfImpl;
@@ -51,7 +51,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLSubPropertyChainAxiomImpl;
 
 public class OntologyNormalizer {
 
-	public static NFOntology normalizeOnt(OWLOntology ontology) throws OWLOntologyCreationException {
+	public static Set<OWLAxiom> filterAndNormalizeAxioms(OWLOntology ontology) throws OWLOntologyCreationException {
 
 		// Filter out non-logical axioms
 		Stream<OWLLogicalAxiom> logicalAx = ontology.logicalAxioms();
@@ -80,8 +80,18 @@ public class OntologyNormalizer {
 		// Normalize SubClassOfAxioms
 		SubClassOfAxNormalizer.normalizeSubClassOfAx(subClassOfAxs, classAsss);
 
-		return (new NFOntology(subClassOfAxs, simpleObjPropInclusionAxs, complexObjPropInclusionAxs, disjointObjPropAxs, swrlRules, classAsss, objPropAsss, sameIndsAsss,
-			differentIndsAsss));
+		Set<OWLAxiom> normalizedAxioms = new HashSet<OWLAxiom>();
+		normalizedAxioms.addAll(subClassOfAxs);
+		normalizedAxioms.addAll(simpleObjPropInclusionAxs);
+		normalizedAxioms.addAll(complexObjPropInclusionAxs);
+		normalizedAxioms.addAll(disjointObjPropAxs);
+		normalizedAxioms.addAll(swrlRules);
+		normalizedAxioms.addAll(classAsss);
+		normalizedAxioms.addAll(objPropAsss);
+		normalizedAxioms.addAll(sameIndsAsss);
+		normalizedAxioms.addAll(differentIndsAsss);
+
+		return normalizedAxioms;
 	}
 
 	private static void distributeAndFilterDataAxs(Stream<OWLLogicalAxiom> logicalAxs, Set<OWLSubClassOfAxiom> subClassOfAxs,
