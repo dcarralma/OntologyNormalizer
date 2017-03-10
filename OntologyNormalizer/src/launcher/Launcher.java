@@ -13,7 +13,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
-import normalizers.OntologyNormalizer;
+import normalizers.MainNormalizer;
 
 public class Launcher {
 
@@ -27,7 +27,7 @@ public class Launcher {
 		OWLOntology ontology = loadOntology(inputOntologyPath);
 		if (ontology != null) {
 			System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
-			Set<OWLAxiom> normalizedAxs = OntologyNormalizer.filterAndNormalizeAxioms(ontology);
+			Set<OWLAxiom> normalizedAxs = MainNormalizer.filterAndNormalizeAxioms(ontology);
 			System.out.println(" * Output path:" + " " + outputOntologyPath);
 			saveAxsAsOWLOntology(normalizedAxs, outputOntologyPath);
 			System.out.println("  - Normalized axioms count:" + " " + normalizedAxs.size());

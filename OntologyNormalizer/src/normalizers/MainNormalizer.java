@@ -49,7 +49,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLSubClassOfAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLSubObjectPropertyOfAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLSubPropertyChainAxiomImpl;
 
-public class OntologyNormalizer {
+public class MainNormalizer {
 
 	public static Set<OWLAxiom> filterAndNormalizeAxioms(OWLOntology ontology) throws OWLOntologyCreationException {
 
