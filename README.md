@@ -5,7 +5,7 @@ The program takes two arguments:
  1. The path of the input ontology file (this must be a valid OWL file that can be parsed by the OWLAPI).
  2. The path where the normalized ontology will be stored.
 
-E.g., if run from the command line using a .jar file, you would have to type something like:
+To run the project from the command line using a .jar file, you would have to type something like the following:
  java -jar OntologyNormalizer.jar Input/exampleOntology.owl Output/normalizedOntology.owl
 
 Note the following comments:
