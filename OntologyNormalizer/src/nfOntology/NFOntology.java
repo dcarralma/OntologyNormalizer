@@ -26,7 +26,7 @@ import org.semanticweb.owlapi.model.SWRLRule;
 public class NFOntology {
 
 	// A1 sqcap ... sqcap An sqs B1 sqcup ... sqcup Bm, A sqs forall R.B, exists R.Self sqs A, A sqs exists R.Self, A sqs > n R.B, A sqs < n R.B, A sqs {a1} sqcup ... sqcup {an}  
-	private Set<OWLSubClassOfAxiom> conjDisjAxs2 = new HashSet<OWLSubClassOfAxiom>();
+	private Set<OWLSubClassOfAxiom> conjDisjAxs = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> univAxs = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> lhsSelfAxs = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> rhsSelfAxs = new HashSet<OWLSubClassOfAxiom>();
