@@ -16,6 +16,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSameIndividualAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.ClassExpressionType;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
@@ -24,8 +25,8 @@ import org.semanticweb.owlapi.model.SWRLRule;
 
 public class NFOntology {
 
-	// Trying out git: A1 sqcap ... sqcap An sqs B1 sqcup ... sqcup Bm, A sqs forall R.B, exists R.Self sqs A, A sqs exists R.Self, A sqs > n R.B, A sqs < n R.B, A sqs {a1} sqcup ... sqcup {an}  
-	private Set<OWLSubClassOfAxiom> conjDisjAxs = new HashSet<OWLSubClassOfAxiom>();
+	// A1 sqcap ... sqcap An sqs B1 sqcup ... sqcup Bm, A sqs forall R.B, exists R.Self sqs A, A sqs exists R.Self, A sqs > n R.B, A sqs < n R.B, A sqs {a1} sqcup ... sqcup {an}  
+	private Set<OWLSubClassOfAxiom> conjDisjAxs2 = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> univAxs = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> lhsSelfAxs = new HashSet<OWLSubClassOfAxiom>();
 	private Set<OWLSubClassOfAxiom> rhsSelfAxs = new HashSet<OWLSubClassOfAxiom>();
@@ -76,7 +77,7 @@ public class NFOntology {
 			if (!disjunct.getClassExpressionType().equals(ClassExpressionType.OWL_CLASS))
 				isConjDisjAxiom = false;
 		if (isConjDisjAxiom)
-			return conjDisjAxs.add(subClassOfAxiom);
+			return conjDisjAxs2.add(subClassOfAxiom);
 
 		// A sqs forall R.B
 		if (subClass.getClassExpressionType().equals(ClassExpressionType.OWL_CLASS))
@@ -117,7 +118,7 @@ public class NFOntology {
 
 	public Set<OWLAxiom> getTBoxAxioms() {
 		Set<OWLAxiom> tBoxAxioms = new HashSet<OWLAxiom>();
-		tBoxAxioms.addAll(conjDisjAxs);
+		tBoxAxioms.addAll(conjDisjAxs2);
 		tBoxAxioms.addAll(univAxs);
 		tBoxAxioms.addAll(lhsSelfAxs);
 		tBoxAxioms.addAll(rhsSelfAxs);
