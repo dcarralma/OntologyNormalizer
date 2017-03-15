@@ -8,9 +8,13 @@ import java.time.LocalTime;
 import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.FileDocumentSource;
+import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import normalizers.MainNormalizer;
@@ -37,7 +41,10 @@ public class Launcher {
 	public static OWLOntology loadOntology(String ontologyFilePath) {
 		OWLOntology ontology = null;
 		try {
-			ontology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(new File(ontologyFilePath));
+			// ignore missing imports
+			OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
+			OWLOntologyDocumentSource documentSource = new FileDocumentSource(new File(ontologyFilePath));
+			ontology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(documentSource, config);
 		} catch (OWLOntologyCreationException e) {
 			System.out.println(e);
 			System.out.println("WARNING!!! Error loading ontology.");
