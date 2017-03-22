@@ -7,15 +7,14 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalTime;
 import java.util.Set;
 
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.FileDocumentSource;
 import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy;
 import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLLogicalAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import normalizers.MainNormalizer;
 
@@ -31,7 +30,8 @@ public class Launcher {
 		OWLOntology ontology = loadOntology(inputOntologyPath);
 		if (ontology != null) {
 			System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
-			Set<OWLAxiom> normalizedAxs = MainNormalizer.filterAndNormalizeAxioms(ontology);
+			MainNormalizer mainNormalizer = new MainNormalizer();
+			Set<OWLLogicalAxiom> normalizedAxs = mainNormalizer.filterAndNormalizeAxioms(ontology);
 			System.out.println(" * Output path:" + " " + outputOntologyPath);
 			saveAxsAsOWLOntology(normalizedAxs, outputOntologyPath);
 			System.out.println("  - Normalized axioms count:" + " " + normalizedAxs.size());
@@ -44,7 +44,7 @@ public class Launcher {
 			// ignore missing imports
 			OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
 			OWLOntologyDocumentSource documentSource = new FileDocumentSource(new File(ontologyFilePath));
-			ontology = OWLManager.createOWLOntologyManager().loadOntologyFromOntologyDocument(documentSource, config);
+			ontology = Srd.owlOntologyManager.loadOntologyFromOntologyDocument(documentSource, config);
 		} catch (OWLOntologyCreationException e) {
 			System.out.println(e);
 			System.out.println("WARNING!!! Error loading ontology.");
@@ -53,13 +53,22 @@ public class Launcher {
 		return ontology;
 	}
 
-	public static void saveAxsAsOWLOntology(Set<OWLAxiom> normalizedAxs, String filePath) {
+	public static void saveOWLOntologyToFile(OWLOntology owlAPIOntology, String filePath) {
 		try {
-			OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-			OWLOntology owlAPIOntology = manager.createOntology();
+			Srd.owlOntologyManager.saveOntology(owlAPIOntology, new FileOutputStream(filePath));
+		} catch (Exception e) {
+			System.out.println(e);
+			System.out.println("WARNING!!! Exception at toFile() at NFOntology.java." + "\n");
+			e.printStackTrace();
+		}
+	}
+
+	public static void saveAxsAsOWLOntology(Set<OWLLogicalAxiom> normalizedAxs, String filePath) {
+		try {
+			OWLOntology owlAPIOntology = Srd.owlOntologyManager.createOntology();
 			for (OWLAxiom axiom : normalizedAxs)
-				manager.addAxiom(owlAPIOntology, axiom);
-			manager.saveOntology(owlAPIOntology, new FileOutputStream(filePath));
+				Srd.owlOntologyManager.addAxiom(owlAPIOntology, axiom);
+			Srd.owlOntologyManager.saveOntology(owlAPIOntology, new FileOutputStream(filePath));
 		} catch (Exception e) {
 			System.out.println(e);
 			System.out.println("WARNING!!! Exception at toFile() at NFOntology.java." + "\n");

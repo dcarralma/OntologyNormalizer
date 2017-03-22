@@ -12,7 +12,6 @@ import org.semanticweb.owlapi.model.ClassExpressionType;
 import org.semanticweb.owlapi.model.HasOperands;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAsymmetricObjectPropertyAxiom;
-import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDifferentIndividualsAxiom;
@@ -32,7 +31,6 @@ import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLReflexiveObjectPropertyAxiom;
 import org.semanticweb.owlapi.model.OWLSameIndividualAxiom;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -53,9 +51,10 @@ import uk.ac.manchester.cs.owl.owlapi.OWLSubClassOfAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLSubObjectPropertyOfAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.OWLSubPropertyChainAxiomImpl;
 
-public class MainNormalizer {
+public class MainNormalizer implements NormalizerInterface {
 
-	public static Set<OWLAxiom> filterAndNormalizeAxioms(OWLOntology ontology) throws OWLOntologyCreationException {
+	@Override
+	public Set<OWLLogicalAxiom> filterAndNormalizeAxioms(OWLOntology ontology) {
 
 		// Filter out non-logical axioms
 		Stream<OWLLogicalAxiom> logicalAx = ontology.logicalAxioms();
@@ -84,7 +83,7 @@ public class MainNormalizer {
 		// Normalize SubClassOfAxioms
 		SubClassOfAxNormalizer.normalizeSubClassOfAx(subClassOfAxs, classAsss);
 
-		Set<OWLAxiom> normalizedAxioms = new HashSet<OWLAxiom>();
+		Set<OWLLogicalAxiom> normalizedAxioms = new HashSet<OWLLogicalAxiom>();
 		normalizedAxioms.addAll(subClassOfAxs);
 		normalizedAxioms.addAll(simpleObjPropInclusionAxs);
 		normalizedAxioms.addAll(complexObjPropInclusionAxs);
@@ -282,4 +281,5 @@ public class MainNormalizer {
 					subClassOfAxs.add(new OWLSubClassOfAxiomImpl(equivalentClassi, equivalentClassj, new HashSet<OWLAnnotation>()));
 		return subClassOfAxs;
 	}
+
 }

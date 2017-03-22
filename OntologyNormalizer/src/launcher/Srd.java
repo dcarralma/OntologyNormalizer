@@ -12,9 +12,10 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 public class Srd {
-
+	public static OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
 	public static OWLDataFactory factory = OWLManager.createOWLOntologyManager().getOWLDataFactory();
 	private static Map<OWLClassExpression, OWLClassExpression> freshClassMap = new HashMap<OWLClassExpression, OWLClassExpression>();
 	private static Map<OWLObjectPropertyExpression, OWLObjectPropertyExpression> freshObjPropMap = new HashMap<OWLObjectPropertyExpression, OWLObjectPropertyExpression>();
