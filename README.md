@@ -9,6 +9,6 @@ To run the project from the command line using a .jar file, you would have to ty
  java -jar OntologyNormalizer.jar Input/exampleOntology.owl Output/normalizedOntology.owl
 
 Note the following comments:
- 1. All axioms in the input ontology which are not logical axioms, or contain datatype properties, datatypes or builtin atoms, or contain empty UnionOf, OneOf or IntersectionOf expressions  are filtered.
+ 1. All axioms in the input ontology which are not logical axioms, or contain datatype properties, datatypes or builtin atoms, or contain empty UnionOf, OneOf or IntersectionOf expressions, or minCardinality 0  are filtered out.
  2. All axioms in the resulting normalized ontology are of one of the following forms: A1 sqcap ... sqcap An sqsubseteq B1 sqcup ... sqcup Bm, A sqs forall R.B, A sqs exists R.Self, exists R.Self sqs B, A sqs >= n R.B, A sqs <= n R.B, A sqs {a1} sqcup ... sqcup {an}, R sqs S, R1 o ... o Rn sqs S, A(a), R(a, b), a1 = ... = an or a1 neq ... neq an where A(i), B are concept names, R(i), S are (possibly inverse) roles, and a(i), b are named individuals.
  3. SWRLRules in the normalized ontology only feature atoms of the form A(t) or R(t, u) where A is a concept name, R is a (possibly inverse) role and t, u are variables or named individuals.

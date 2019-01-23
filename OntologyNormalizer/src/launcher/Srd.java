@@ -42,14 +42,6 @@ public class Srd {
 		return newSet;
 	}
 
-	public static <T> Set<T> toSet(T element1, T element2, T element3) {
-		Set<T> newSet = new HashSet<T>();
-		newSet.add(element1);
-		newSet.add(element2);
-		newSet.add(element3);
-		return newSet;
-	}
-
 	// Retrieving fresh classes
 
 	public static OWLClassExpression getCorrespondingFreshClass(OWLClassExpression classExpression) {

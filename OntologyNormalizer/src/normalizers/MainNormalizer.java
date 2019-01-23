@@ -56,9 +56,6 @@ public class MainNormalizer implements NormalizerInterface {
 	@Override
 	public Set<OWLLogicalAxiom> filterAndNormalizeAxioms(OWLOntology ontology) {
 
-		// Filter out non-logical axioms
-		Stream<OWLLogicalAxiom> logicalAx = ontology.logicalAxioms();
-
 		// Distribute Axioms
 		Set<OWLSubClassOfAxiom> subClassOfAxs = new HashSet<OWLSubClassOfAxiom>();
 		Set<OWLSubObjectPropertyOfAxiom> simpleObjPropInclusionAxs = new HashSet<OWLSubObjectPropertyOfAxiom>();
@@ -70,7 +67,9 @@ public class MainNormalizer implements NormalizerInterface {
 		Set<OWLNegativeObjectPropertyAssertionAxiom> negativeObjPropAsss = new HashSet<OWLNegativeObjectPropertyAssertionAxiom>();
 		Set<OWLSameIndividualAxiom> sameIndsAsss = new HashSet<OWLSameIndividualAxiom>();
 		Set<OWLDifferentIndividualsAxiom> differentIndsAsss = new HashSet<OWLDifferentIndividualsAxiom>();
-		distributeAndFilterDataAxs(logicalAx, subClassOfAxs, simpleObjPropInclusionAxs, complexObjPropInclusionAxs, disjointObjPropAxs, swrlRules, classAsss, objPropAsss,
+		
+		// Filter out non-logical axioms
+		distributeAndFilterDataAxs(ontology.logicalAxioms(), subClassOfAxs, simpleObjPropInclusionAxs, complexObjPropInclusionAxs, disjointObjPropAxs, swrlRules, classAsss, objPropAsss,
 				negativeObjPropAsss, differentIndsAsss, sameIndsAsss);
 
 		// Normalize SWRLRules
