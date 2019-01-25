@@ -31,7 +31,7 @@ public class Launcher {
 			// The following program takes two arguments:
 			// 1. The path of the input ontology file (this must be a valid OWL file that
 			// can be parsed by the OWLAPI).
-			// 2. The path where the normalized ontology will be stored.
+			// 2. The path where the normalized ontology will be stored (in OWL-XML format).
 			//
 			// To run the project from the command line using a .jar file, you would have to
 			// type something like the following:
@@ -57,7 +57,7 @@ public class Launcher {
 			System.out.println("The following program takes two arguments:");
 			System.out.println(
 					"    1. The path of the input ontology file (this must be a valid OWL file that can be parsed by the OWLAPI).");
-			System.out.println("    2. The path where the normalized ontology will be stored.");
+			System.out.println("    2. The path where the normalized ontology will be stored (in OWL-XML format).");
 			System.out.println("");
 			System.out.println("Proper Usage is: java -jar ontologyNormalizer.jar arg1 arg2");
 			System.out.println(" - arg1 is input ontology file path (ex: ./input/ontology1.owl.xml)");
