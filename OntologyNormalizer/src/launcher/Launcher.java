@@ -31,7 +31,7 @@ public class Launcher {
 			// The following program takes two arguments:
 			// 1. The path of the input ontology file (this must be a valid OWL file that
 			// can be parsed by the OWLAPI).
-			// 2. The path where the normalized ontology will be stored.
+			// 2. The path where the normalized ontology will be stored (in OWL-XML format).
 			//
 			// To run the project from the command line using a .jar file, you would have to
 			// type something like the following:
