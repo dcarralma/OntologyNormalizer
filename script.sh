@@ -11,3 +11,5 @@ do
 	java -jar OntologyNormalizer.jar $ontologyPath $ontologyPath
 	echo
 done
+
+

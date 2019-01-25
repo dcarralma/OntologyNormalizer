@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -23,20 +24,20 @@ public class Srd {
 	// Helpers
 
 	public static <T> List<T> toList(T element1, T element2) {
-		List<T> newSet = new ArrayList<T>();
+		final List<T> newSet = new ArrayList<T>();
 		newSet.add(element1);
 		newSet.add(element2);
 		return newSet;
 	}
 
 	public static <T> Set<T> toSet(T element1) {
-		Set<T> newSet = new HashSet<T>();
+		final Set<T> newSet = new HashSet<T>();
 		newSet.add(element1);
 		return newSet;
 	}
 
 	public static <T> Set<T> toSet(T element1, T element2) {
-		Set<T> newSet = new HashSet<T>();
+		final Set<T> newSet = new HashSet<T>();
 		newSet.add(element1);
 		newSet.add(element2);
 		return newSet;
@@ -45,12 +46,14 @@ public class Srd {
 	// Retrieving fresh classes
 
 	public static OWLClassExpression getCorrespondingFreshClass(OWLClassExpression classExpression) {
-		freshClassMap.putIfAbsent(classExpression, factory.getOWLClass(IRI.create("http://FreshClass" + freshClassMap.size())));
+		freshClassMap.putIfAbsent(classExpression,
+				factory.getOWLClass(IRI.create("http://FreshClass" + UUID.randomUUID().getLeastSignificantBits())));
 		return freshClassMap.get(classExpression);
 	}
 
 	public static OWLObjectPropertyExpression getCorrespondingFreshObjProp(OWLObjectPropertyExpression objPropExp) {
-		freshObjPropMap.putIfAbsent(objPropExp, factory.getOWLObjectProperty(IRI.create("http://FreshObjProp" + freshObjPropMap.size())));
+		freshObjPropMap.putIfAbsent(objPropExp, factory
+				.getOWLObjectProperty(IRI.create("http://FreshObjProp" + UUID.randomUUID().getLeastSignificantBits())));
 		return freshObjPropMap.get(objPropExp);
 	}
 
