@@ -13,7 +13,7 @@ import org.semanticweb.owlapi.model.SWRLBuiltInAtom;
 import org.semanticweb.owlapi.model.SWRLClassAtom;
 import org.semanticweb.owlapi.model.SWRLRule;
 
-import launcher.Srd;
+import launcher.Utils;
 import uk.ac.manchester.cs.owl.owlapi.OWLSubClassOfAxiomImpl;
 import uk.ac.manchester.cs.owl.owlapi.SWRLClassAtomImpl;
 import uk.ac.manchester.cs.owl.owlapi.SWRLRuleImpl;
@@ -32,8 +32,8 @@ public class SWRLRulesNormalizer {
 			for (SWRLAtom bodyAtom : rule.body().collect(Collectors.toSet()))
 				if (bodyAtom instanceof SWRLClassAtom && (bodyAtom.getPredicate() instanceof OWLClass)) {
 					OWLClassExpression classExpPred = (OWLClassExpression) bodyAtom.getPredicate();
-					subClassOfAxioms.add(new OWLSubClassOfAxiomImpl(classExpPred, Srd.getCorrespondingFreshClass(classExpPred), new HashSet<OWLAnnotation>()));
-					body.add(new SWRLClassAtomImpl(Srd.getCorrespondingFreshClass(classExpPred), ((SWRLClassAtom) bodyAtom).getArgument()));
+					subClassOfAxioms.add(new OWLSubClassOfAxiomImpl(classExpPred, Utils.getCorrespondingFreshClass(classExpPred), new HashSet<OWLAnnotation>()));
+					body.add(new SWRLClassAtomImpl(Utils.getCorrespondingFreshClass(classExpPred), ((SWRLClassAtom) bodyAtom).getArgument()));
 				} else if (bodyAtom instanceof SWRLBuiltInAtom)
 					containsBuiltInAtom = true;
 				else
@@ -43,8 +43,8 @@ public class SWRLRulesNormalizer {
 			for (SWRLAtom headAtom : rule.head().collect(Collectors.toSet()))
 				if (headAtom instanceof SWRLClassAtom && !(headAtom.getPredicate() instanceof OWLClass)) {
 					OWLClassExpression classExpPred = (OWLClassExpression) headAtom.getPredicate();
-					subClassOfAxioms.add(new OWLSubClassOfAxiomImpl(Srd.getCorrespondingFreshClass(classExpPred), classExpPred, new HashSet<OWLAnnotation>()));
-					head.add(new SWRLClassAtomImpl(Srd.getCorrespondingFreshClass(classExpPred), ((SWRLClassAtom) headAtom).getArgument()));
+					subClassOfAxioms.add(new OWLSubClassOfAxiomImpl(Utils.getCorrespondingFreshClass(classExpPred), classExpPred, new HashSet<OWLAnnotation>()));
+					head.add(new SWRLClassAtomImpl(Utils.getCorrespondingFreshClass(classExpPred), ((SWRLClassAtom) headAtom).getArgument()));
 				} else if (headAtom instanceof SWRLBuiltInAtom)
 					containsBuiltInAtom = true;
 				else

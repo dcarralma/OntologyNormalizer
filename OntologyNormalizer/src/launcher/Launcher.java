@@ -85,29 +85,19 @@ public class Launcher {
 		System.out.println(" * Input path:" + " " + inputOntologyPath);
 
 		final OWLOntology ontology = loadOntology(inputOntologyPath);
-		if (ontology != null) {
-			System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
-			final MainNormalizer mainNormalizer = new MainNormalizer();
-			final Set<OWLLogicalAxiom> normalizedAxs = mainNormalizer.filterAndNormalizeAxioms(ontology);
-			System.out.println(" * Output path:" + " " + outputOntologyPath);
-			saveAxsAsOWLOntology(normalizedAxs, outputOntologyPath);
-			System.out.println("  - Normalized axioms count:" + " " + normalizedAxs.size());
-		}
+		System.out.println("  - Input ontology size:" + " " + ontology.getAxiomCount());
+		final MainNormalizer mainNormalizer = new MainNormalizer();
+		final Set<OWLLogicalAxiom> normalizedAxs = mainNormalizer.filterAndNormalizeAxioms(ontology);
+		System.out.println(" * Output path:" + " " + outputOntologyPath);
+		saveAxsAsOWLOntology(normalizedAxs, outputOntologyPath);
+		System.out.println("  - Normalized axioms count:" + " " + normalizedAxs.size());
 	}
 
-	public static OWLOntology loadOntology(final String ontologyFilePath) {
-		OWLOntology ontology = null;
-		try {
-			final OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration()
-					.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.THROW_EXCEPTION);
-			final OWLOntologyDocumentSource documentSource = new FileDocumentSource(new File(ontologyFilePath));
-			ontology = Srd.owlOntologyManager.loadOntologyFromOntologyDocument(documentSource, config);
-		} catch (final OWLOntologyCreationException e) {
-			System.out.println(e);
-			System.out.println("WARNING!!! Error loading ontology.");
-			System.out.println(" -> " + ontologyFilePath + "\n");
-		}
-		return ontology;
+	public static OWLOntology loadOntology(final String ontologyFilePath) throws OWLOntologyCreationException {
+		final OWLOntologyLoaderConfiguration config = new OWLOntologyLoaderConfiguration()
+				.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.THROW_EXCEPTION);
+		final OWLOntologyDocumentSource documentSource = new FileDocumentSource(new File(ontologyFilePath));
+		return Utils.owlOntologyManager.loadOntologyFromOntologyDocument(documentSource, config);
 	}
 
 	public static void saveOWLOntologyToFile(final OWLOntology owlAPIOntology, final String filePath)
@@ -118,9 +108,9 @@ public class Launcher {
 	public static void saveAxsAsOWLOntology(final Set<OWLLogicalAxiom> normalizedAxs, final String filePath)
 			throws OWLOntologyCreationException, OWLOntologyStorageException, FileNotFoundException {
 
-		final OWLOntology owlAPIOntology = Srd.owlOntologyManager.createOntology();
+		final OWLOntology owlAPIOntology = Utils.owlOntologyManager.createOntology();
 		for (final OWLAxiom axiom : normalizedAxs) {
-			Srd.owlOntologyManager.addAxiom(owlAPIOntology, axiom);
+			Utils.owlOntologyManager.addAxiom(owlAPIOntology, axiom);
 		}
 		saveToOWLXMLDocument(filePath, owlAPIOntology);
 
@@ -128,6 +118,6 @@ public class Launcher {
 
 	private static void saveToOWLXMLDocument(final String filePath, final OWLOntology owlOntology)
 			throws OWLOntologyStorageException, FileNotFoundException {
-		Srd.owlOntologyManager.saveOntology(owlOntology, new OWLXMLDocumentFormat(), new FileOutputStream(filePath));
+		Utils.owlOntologyManager.saveOntology(owlOntology, new OWLXMLDocumentFormat(), new FileOutputStream(filePath));
 	}
 }
