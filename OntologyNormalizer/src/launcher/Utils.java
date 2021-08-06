@@ -16,21 +16,18 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 public class Utils {
 	public static OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
 	public static OWLDataFactory factory = OWLManager.createOWLOntologyManager().getOWLDataFactory();
-	private static Map<OWLClassExpression, OWLClassExpression> freshClassMap = new HashMap<OWLClassExpression, OWLClassExpression>();
-	private static Map<OWLObjectPropertyExpression, OWLObjectPropertyExpression> freshObjPropMap = new HashMap<OWLObjectPropertyExpression, OWLObjectPropertyExpression>();
-
+	private static Map<OWLClassExpression, OWLClassExpression> freshClassMap = new HashMap<>();
+	private static Map<OWLObjectPropertyExpression, OWLObjectPropertyExpression> freshObjPropMap = new HashMap<>();
 
 	public static <T> Set<T> toSet(final T... elements) {
-		final Set<T> newSet = new HashSet<T>();
+		final Set<T> newSet = new HashSet<>();
 		for (final T element : elements) {
-
 			newSet.add(element);
 		}
 		return newSet;
 	}
 
 	// Retrieving fresh classes
-
 	public static OWLClassExpression getCorrespondingFreshClass(final OWLClassExpression classExpression) {
 		freshClassMap.putIfAbsent(classExpression,
 				factory.getOWLClass(IRI.create("http://FreshClass" + UUID.randomUUID().getLeastSignificantBits())));
