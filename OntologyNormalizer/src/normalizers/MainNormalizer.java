@@ -25,6 +25,7 @@ import org.semanticweb.owlapi.model.OWLInverseObjectPropertiesAxiom;
 import org.semanticweb.owlapi.model.OWLIrreflexiveObjectPropertyAxiom;
 import org.semanticweb.owlapi.model.OWLLogicalAxiom;
 import org.semanticweb.owlapi.model.OWLNegativeObjectPropertyAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
 import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
@@ -40,6 +41,7 @@ import org.semanticweb.owlapi.model.OWLTransitiveObjectPropertyAxiom;
 import org.semanticweb.owlapi.model.SWRLRule;
 
 import launcher.Utils;
+import uk.ac.manchester.cs.owl.owlapi.InternalizedEntities;
 
 public class MainNormalizer implements NormalizerInterface {
 
@@ -148,9 +150,8 @@ public class MainNormalizer implements NormalizerInterface {
 
 		case "ObjectPropertyDomain":
 			final OWLObjectPropertyDomainAxiom domainObjPropRangeAxiom = (OWLObjectPropertyDomainAxiom) logicalAx;
-			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(
-					Utils.factory.getOWLObjectSomeValuesFrom(domainObjPropRangeAxiom.getProperty(),
-							Utils.factory.getOWLThing()),
+			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory
+					.getOWLObjectSomeValuesFrom(domainObjPropRangeAxiom.getProperty(), Utils.factory.getOWLThing()),
 					domainObjPropRangeAxiom.getDomain()));
 			break;
 
@@ -284,17 +285,28 @@ public class MainNormalizer implements NormalizerInterface {
 		return logicalAx.dataPropertiesInSignature().count() != 0 || logicalAx.datatypesInSignature().count() != 0;
 	}
 
-	private static Set<OWLSubClassOfAxiom> disjointClassesAxToSubClassOfAxs(
-			final OWLDisjointClassesAxiom disjointClassesAxiom) {
-		final Set<OWLSubClassOfAxiom> subClassOfAxs = new HashSet<OWLSubClassOfAxiom>();
-		final List<OWLClassExpression> disjointClasses = disjointClassesAxiom.classExpressions()
-				.collect(Collectors.toList());
-		for (int i = 0; i < disjointClasses.size(); i++)
-			for (int j = i + 1; j < disjointClasses.size(); j++)
-				subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(
-						Utils.factory.getOWLObjectIntersectionOf(disjointClasses.get(i), disjointClasses.get(j)),
-						Utils.factory.getOWLNothing()));
-		return subClassOfAxs;
+	// FIXME what do we do with this?
+	/**
+	 * Transforms this axiom to an equivalent set of OWLSubClassOfAxiom axioms.
+	 * <code>( C1 and C2 ) subClassOf Bottom</code> <br>
+	 * For each pair of disjoint classes in the OWLDisjointClassesAxiom, create a
+	 * new OWLSubClassOfAxiom axiom.
+	 *
+	 * @param axiom axiom to normalize to a set of OWLSubClassOfAxiom axioms.
+	 */
+	public static Set<OWLSubClassOfAxiom> disjointClassesAxToSubClassOfAxs(final OWLDisjointClassesAxiom axiom) {
+		final Set<OWLSubClassOfAxiom> subClassOfAxioms = new HashSet<OWLSubClassOfAxiom>();
+
+		for (final OWLDisjointClassesAxiom pairwiseDisjointClassesAxiom : axiom.asPairwiseAxioms()) {
+			if (pairwiseDisjointClassesAxiom.classExpressions().count() != 2) {
+				throw new RuntimeException("Expected Pairwise disjoint classes axiom: " + pairwiseDisjointClassesAxiom);
+			}
+			/* Normalize to ( C1 and C2 ) subClassOf Bottom */
+			final OWLObjectIntersectionOf intersection = Utils.factory
+					.getOWLObjectIntersectionOf(pairwiseDisjointClassesAxiom.classExpressions());
+			subClassOfAxioms.add(Utils.factory.getOWLSubClassOfAxiom(intersection, InternalizedEntities.OWL_NOTHING));
+		}
+		return subClassOfAxioms;
 	}
 
 	private static Set<OWLSubClassOfAxiom> equivalentClassesAxToSubClassOfAxs(
