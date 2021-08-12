@@ -67,8 +67,8 @@ public class MainNormalizer implements NormalizerInterface {
 		SWRLRulesNormalizer.normalizeSWRLRules(this.swrlRules, this.subClassOfAxs);
 
 		// Normalize ABoxAxioms
-		ABoxNormalizer.normalizeClassAsss(this.classAsss, this.subClassOfAxs);
-		ABoxNormalizer.normalizeNegativeObjPropAsss(this.negativeObjPropAsss, this.objPropAsss,
+		ABoxNormalizer.normalizeClassAssertions(this.classAsss, this.subClassOfAxs);
+		ABoxNormalizer.normalizeNegativeObjPropAsssertions(this.negativeObjPropAsss, this.objPropAsss,
 				this.disjointObjPropAxs);
 
 		// Normalize SubClassOfAxioms
@@ -247,7 +247,7 @@ public class MainNormalizer implements NormalizerInterface {
 		default:
 			System.out.println(
 					"WARNING!!! Unrecognized type of Logical Axiom at normalizeOntology at MainNormalizer.java.");
-			System.out.println(" -> " + logicalAx.getAxiomType().toString());
+			System.out.println(" -> " + logicalAx.getAxiomType());
 			System.out.println(" -> " + logicalAx + "\n");
 		}
 	}

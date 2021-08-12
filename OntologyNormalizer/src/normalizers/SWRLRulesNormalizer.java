@@ -28,9 +28,10 @@ public class SWRLRulesNormalizer {
 			for (final SWRLAtom bodyAtom : rule.body().collect(Collectors.toSet())) {
 				if (bodyAtom instanceof SWRLClassAtom && (bodyAtom.getPredicate() instanceof OWLClass)) {
 					final OWLClassExpression classExpPred = (OWLClassExpression) bodyAtom.getPredicate();
+					final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpPred);
 					subClassOfAxioms.add(Utils.factory.getOWLSubClassOfAxiom(classExpPred,
-							Utils.getCorrespondingFreshClass(classExpPred)));
-					body.add(Utils.factory.getSWRLClassAtom(Utils.getCorrespondingFreshClass(classExpPred),
+							freshClass));
+					body.add(Utils.factory.getSWRLClassAtom(freshClass,
 							((SWRLClassAtom) bodyAtom).getArgument()));
 				} else if (bodyAtom instanceof SWRLBuiltInAtom) {
 					containsBuiltInAtom = true;
@@ -43,9 +44,10 @@ public class SWRLRulesNormalizer {
 			for (final SWRLAtom headAtom : rule.head().collect(Collectors.toSet())) {
 				if (headAtom instanceof SWRLClassAtom && !(headAtom.getPredicate() instanceof OWLClass)) {
 					final OWLClassExpression classExpPred = (OWLClassExpression) headAtom.getPredicate();
+					final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpPred);
 					subClassOfAxioms.add(Utils.factory
-							.getOWLSubClassOfAxiom(Utils.getCorrespondingFreshClass(classExpPred), classExpPred));
-					head.add(Utils.factory.getSWRLClassAtom(Utils.getCorrespondingFreshClass(classExpPred),
+							.getOWLSubClassOfAxiom(freshClass, classExpPred));
+					head.add(Utils.factory.getSWRLClassAtom(freshClass,
 							((SWRLClassAtom) headAtom).getArgument()));
 				} else if (headAtom instanceof SWRLBuiltInAtom) {
 					containsBuiltInAtom = true;
@@ -56,6 +58,10 @@ public class SWRLRulesNormalizer {
 
 			if (!containsBuiltInAtom) {
 				rules.add(Utils.factory.getSWRLRule(body, head));
+			} else {
+				System.out.println(
+						"WARNING!!! Unrecognized built in SWRL rule atom! The following SWRL rule is ignored: ");
+				System.out.println(" -> " + rule);
 			}
 		}
 	}
