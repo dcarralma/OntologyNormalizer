@@ -119,16 +119,16 @@ public class MainNormalizer implements NormalizerInterface {
 			break;
 
 		case "InverseFunctionalObjectProperty":
-			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory.getOWLThing(),
+			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(InternalizedEntities.OWL_THING,
 					Utils.factory.getOWLObjectMaxCardinality(1,
 							((OWLInverseFunctionalObjectPropertyAxiom) logicalAx).getProperty().getInverseProperty(),
-							Utils.factory.getOWLThing())));
+							InternalizedEntities.OWL_THING)));
 			break;
 
 		case "IrrefexiveObjectProperty":
 			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(
 					Utils.factory.getOWLObjectHasSelf(((OWLIrreflexiveObjectPropertyAxiom) logicalAx).getProperty()),
-					Utils.factory.getOWLNothing()));
+					InternalizedEntities.OWL_NOTHING));
 			break;
 
 		case "EquivalentClasses":
@@ -136,27 +136,27 @@ public class MainNormalizer implements NormalizerInterface {
 			break;
 
 		case "FunctionalObjectProperty":
-			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory.getOWLThing(),
+			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(InternalizedEntities.OWL_THING,
 					Utils.factory.getOWLObjectMaxCardinality(1,
 							((OWLFunctionalObjectPropertyAxiom) logicalAx).getProperty(),
-							Utils.factory.getOWLThing())));
+							InternalizedEntities.OWL_THING)));
 			break;
 
 		case "ObjectPropertyRange":
 			final OWLObjectPropertyRangeAxiom objPropRangeAxiom = (OWLObjectPropertyRangeAxiom) logicalAx;
-			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory.getOWLThing(), Utils.factory
+			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(InternalizedEntities.OWL_THING, Utils.factory
 					.getOWLObjectAllValuesFrom(objPropRangeAxiom.getProperty(), objPropRangeAxiom.getRange())));
 			break;
 
 		case "ObjectPropertyDomain":
 			final OWLObjectPropertyDomainAxiom domainObjPropRangeAxiom = (OWLObjectPropertyDomainAxiom) logicalAx;
 			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory
-					.getOWLObjectSomeValuesFrom(domainObjPropRangeAxiom.getProperty(), Utils.factory.getOWLThing()),
+					.getOWLObjectSomeValuesFrom(domainObjPropRangeAxiom.getProperty(), InternalizedEntities.OWL_THING),
 					domainObjPropRangeAxiom.getDomain()));
 			break;
 
 		case "ReflexiveObjectProperty":
-			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(Utils.factory.getOWLThing(),
+			this.subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(InternalizedEntities.OWL_THING,
 					Utils.factory.getOWLObjectHasSelf(((OWLReflexiveObjectPropertyAxiom) logicalAx).getProperty())));
 			break;
 
