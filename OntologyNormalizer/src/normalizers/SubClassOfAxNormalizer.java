@@ -91,8 +91,10 @@ public class SubClassOfAxNormalizer {
 		// Normalize SubClass
 		switch (subClass.getClassExpressionType()) {
 
-		// A1 cap ... cap C cap ... cap An sqs D -> { C sqs X, A1 cap ... cap X cap ...
-		// cap An sqs D }
+		/*
+		 * A1 cap ... cap C cap ... cap An sqs D -> { C sqs X, A1 cap ... cap X cap ...
+		 * cap An sqs D }
+		 */
 		case OBJECT_INTERSECTION_OF:
 			if (superClass.isOWLClass()) {
 
@@ -230,7 +232,6 @@ public class SubClassOfAxNormalizer {
 					existsSuperClass.getProperty(), existsSuperClass.getFiller())));
 
 		// C sqs hasValue(R, a) -> { C sqs exists R.{a} }
-
 		case OBJECT_HAS_VALUE:
 			final OWLObjectHasValue hasValueSuperClass = (OWLObjectHasValue) superClass;
 			return Utils.toSet(Utils.factory.getOWLSubClassOfAxiom(subClass,
@@ -240,13 +241,14 @@ public class SubClassOfAxNormalizer {
 		// C sqs forall R.D -> { C sqs forall R.X, X sqs D }
 		case OBJECT_ALL_VALUES_FROM:
 			final OWLObjectAllValuesFrom allValuesSuperClass = (OWLObjectAllValuesFrom) superClass;
-			if (!allValuesSuperClass.getFiller().getClassExpressionType().equals(ClassExpressionType.OWL_CLASS))
+			if (!allValuesSuperClass.getFiller().isOWLClass()) {
 				return Utils.toSet(
 						Utils.factory.getOWLSubClassOfAxiom(subClass,
 								Utils.factory.getOWLObjectAllValuesFrom(allValuesSuperClass.getProperty(),
 										Utils.getCorrespondingFreshClass(allValuesSuperClass))),
 						Utils.factory.getOWLSubClassOfAxiom(Utils.getCorrespondingFreshClass(allValuesSuperClass),
 								allValuesSuperClass.getFiller()));
+			}
 			break;
 
 		// C sqs = n R.D -> { C sqs >= n R.D, C sqs <= n R.D }
@@ -294,7 +296,7 @@ public class SubClassOfAxNormalizer {
 						InternalizedEntities.OWL_NOTHING));
 
 				// C sqs <= n R.D -> { C sqs <= n R.X, D sqs X }
-			} else if (!maxCardSuperClassFiller.getClassExpressionType().equals(ClassExpressionType.OWL_CLASS)) {
+			} else if (!maxCardSuperClassFiller.isOWLClass()) {
 				return Utils.toSet(
 						Utils.factory.getOWLSubClassOfAxiom(subClass,
 								Utils.factory.getOWLObjectMaxCardinality(maxCardSuperClass.getCardinality(),
