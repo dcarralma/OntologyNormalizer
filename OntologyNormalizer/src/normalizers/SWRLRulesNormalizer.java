@@ -3,6 +3,7 @@ package normalizers;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
@@ -22,42 +23,17 @@ public class SWRLRulesNormalizer {
 		rules.clear();
 
 		for (final SWRLRule rule : rulesCopy) {
-			boolean containsBuiltInAtom = false;
 
-			final Set<SWRLAtom> body = new HashSet<>();
-			for (final SWRLAtom bodyAtom : rule.body().collect(Collectors.toSet())) {
-				if (bodyAtom instanceof SWRLClassAtom && (bodyAtom.getPredicate() instanceof OWLClass)) {
-					final OWLClassExpression classExpPred = (OWLClassExpression) bodyAtom.getPredicate();
-					final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpPred);
-					subClassOfAxioms.add(Utils.factory.getOWLSubClassOfAxiom(classExpPred,
-							freshClass));
-					body.add(Utils.factory.getSWRLClassAtom(freshClass,
-							((SWRLClassAtom) bodyAtom).getArgument()));
-				} else if (bodyAtom instanceof SWRLBuiltInAtom) {
-					containsBuiltInAtom = true;
-				} else {
-					body.add(bodyAtom);
-				}
-			}
+			final Set<SWRLAtom> normalizedBody = new HashSet<>();
+			final boolean bodyContainsBuiltInAtom = normalizeSWRLRuleConjunction(rule.body(), normalizedBody, true,
+					subClassOfAxioms);
 
-			final Set<SWRLAtom> head = new HashSet<>();
-			for (final SWRLAtom headAtom : rule.head().collect(Collectors.toSet())) {
-				if (headAtom instanceof SWRLClassAtom && !(headAtom.getPredicate() instanceof OWLClass)) {
-					final OWLClassExpression classExpPred = (OWLClassExpression) headAtom.getPredicate();
-					final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpPred);
-					subClassOfAxioms.add(Utils.factory
-							.getOWLSubClassOfAxiom(freshClass, classExpPred));
-					head.add(Utils.factory.getSWRLClassAtom(freshClass,
-							((SWRLClassAtom) headAtom).getArgument()));
-				} else if (headAtom instanceof SWRLBuiltInAtom) {
-					containsBuiltInAtom = true;
-				} else {
-					head.add(headAtom);
-				}
-			}
+			final Set<SWRLAtom> normalizedHead = new HashSet<>();
+			final boolean headCotainsBuiltInAtoms = normalizeSWRLRuleConjunction(rule.head(), normalizedHead, false,
+					subClassOfAxioms);
 
-			if (!containsBuiltInAtom) {
-				rules.add(Utils.factory.getSWRLRule(body, head));
+			if (!bodyContainsBuiltInAtom && !headCotainsBuiltInAtoms) {
+				rules.add(Utils.factory.getSWRLRule(normalizedBody, normalizedHead));
 			} else {
 				System.out.println(
 						"WARNING!!! Unrecognized built in SWRL rule atom! The following SWRL rule is ignored: ");
@@ -65,4 +41,32 @@ public class SWRLRulesNormalizer {
 			}
 		}
 	}
+
+	private static boolean normalizeSWRLRuleConjunction(final Stream<SWRLAtom> toNormalize,
+			final Set<SWRLAtom> normalized, final boolean isBody, final Set<OWLSubClassOfAxiom> subClassOfAxioms) {
+		boolean containsBuiltInAtom = false;
+
+		for (final SWRLAtom atom : toNormalize.collect(Collectors.toSet())) {
+			if (atom instanceof SWRLClassAtom && (atom.getPredicate() instanceof OWLClass)) {
+				final OWLClassExpression classExpPred = (OWLClassExpression) atom.getPredicate();
+				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpPred);
+				normalized.add(Utils.factory.getSWRLClassAtom(freshClass, ((SWRLClassAtom) atom).getArgument()));
+
+				final OWLSubClassOfAxiom owlSubClassOfAxiom;
+				if (isBody) {
+					owlSubClassOfAxiom = Utils.factory.getOWLSubClassOfAxiom(classExpPred, freshClass);
+				} else {
+					owlSubClassOfAxiom = Utils.factory.getOWLSubClassOfAxiom(freshClass, classExpPred);
+				}
+
+				subClassOfAxioms.add(owlSubClassOfAxiom);
+			} else if (atom instanceof SWRLBuiltInAtom) {
+				containsBuiltInAtom = true;
+			} else {
+				normalized.add(atom);
+			}
+		}
+		return containsBuiltInAtom;
+	}
+
 }
