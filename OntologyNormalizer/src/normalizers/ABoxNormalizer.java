@@ -33,8 +33,7 @@ public final class ABoxNormalizer {
 				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(classExpr);
 				classAsssertionAxioms
 						.add(Utils.factory.getOWLClassAssertionAxiom(freshClass, classAssertion.getIndividual()));
-				subClassOfAxioms.add(
-						Utils.factory.getOWLSubClassOfAxiom(freshClass, classExpr));
+				subClassOfAxioms.add(Utils.factory.getOWLSubClassOfAxiom(freshClass, classExpr));
 			}
 		}
 	}
@@ -46,9 +45,9 @@ public final class ABoxNormalizer {
 		for (final OWLNegativeObjectPropertyAssertionAxiom negativeObjPropAss : negativeObjPropAssertions) {
 			// ~ R(a, b) -> { Rx(a, b), Disj(R, Rx) }
 			final OWLObjectPropertyExpression objProp = negativeObjPropAss.getProperty();
-			disjointPropAx.add(Utils.factory.getOWLDisjointObjectPropertiesAxiom(
-					Utils.toSet(Utils.getCorrespondingFreshObjProp(objProp), objProp)));
-			objPropAss.add(Utils.factory.getOWLObjectPropertyAssertionAxiom(Utils.getCorrespondingFreshObjProp(objProp),
+			final OWLObjectPropertyExpression freshObjProp = Utils.getCorrespondingFreshObjProp(objProp);
+			disjointPropAx.add(Utils.factory.getOWLDisjointObjectPropertiesAxiom(freshObjProp, objProp));
+			objPropAss.add(Utils.factory.getOWLObjectPropertyAssertionAxiom(freshObjProp,
 					negativeObjPropAss.getSubject(), negativeObjPropAss.getObject()));
 		}
 	}

@@ -90,7 +90,6 @@ public class SubClassOfAxNormalizer {
 
 		// Normalize SubClass
 		switch (subClass.getClassExpressionType()) {
-
 		/*
 		 * A1 cap ... cap C cap ... cap An sqs D -> { C sqs X, A1 cap ... cap X cap ...
 		 * cap An sqs D }
@@ -106,11 +105,12 @@ public class SubClassOfAxNormalizer {
 
 					final Set<OWLClassExpression> subClassConjuncts = subClass.asConjunctSet();
 					subClassConjuncts.remove(complexClassExpression);
-					subClassConjuncts.add(Utils.getCorrespondingFreshClass(complexClassExpression));
+					final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(complexClassExpression);
+					subClassConjuncts.add(freshClass);
 					return Utils.toSet(
 
 							Utils.factory.getOWLSubClassOfAxiom(complexClassExpression,
-									Utils.getCorrespondingFreshClass(complexClassExpression)),
+									freshClass),
 
 							Utils.factory.getOWLSubClassOfAxiom(
 									Utils.factory.getOWLObjectIntersectionOf(subClassConjuncts), superClass));
@@ -216,11 +216,12 @@ public class SubClassOfAxNormalizer {
 				final OWLClassExpression nonClassNameClassExpr = nonClassNameClassExprOptional.get();
 				final Set<OWLClassExpression> superClassDisjuncts = superClass.asDisjunctSet();
 				superClassDisjuncts.remove(nonClassNameClassExpr);
-				superClassDisjuncts.add(Utils.getCorrespondingFreshClass(nonClassNameClassExpr));
+				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(nonClassNameClassExpr);
+				superClassDisjuncts.add(freshClass);
 				return Utils.toSet(
 						Utils.factory.getOWLSubClassOfAxiom(subClass,
 								Utils.factory.getOWLObjectUnionOf(superClassDisjuncts)),
-						Utils.factory.getOWLSubClassOfAxiom(Utils.getCorrespondingFreshClass(nonClassNameClassExpr),
+						Utils.factory.getOWLSubClassOfAxiom(freshClass,
 								nonClassNameClassExpr));
 			}
 			break;
@@ -242,12 +243,11 @@ public class SubClassOfAxNormalizer {
 		case OBJECT_ALL_VALUES_FROM:
 			final OWLObjectAllValuesFrom allValuesSuperClass = (OWLObjectAllValuesFrom) superClass;
 			if (!allValuesSuperClass.getFiller().isOWLClass()) {
+				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(allValuesSuperClass);
 				return Utils.toSet(
 						Utils.factory.getOWLSubClassOfAxiom(subClass,
-								Utils.factory.getOWLObjectAllValuesFrom(allValuesSuperClass.getProperty(),
-										Utils.getCorrespondingFreshClass(allValuesSuperClass))),
-						Utils.factory.getOWLSubClassOfAxiom(Utils.getCorrespondingFreshClass(allValuesSuperClass),
-								allValuesSuperClass.getFiller()));
+								Utils.factory.getOWLObjectAllValuesFrom(allValuesSuperClass.getProperty(), freshClass)),
+						Utils.factory.getOWLSubClassOfAxiom(freshClass, allValuesSuperClass.getFiller()));
 			}
 			break;
 
@@ -271,12 +271,14 @@ public class SubClassOfAxNormalizer {
 				return new HashSet<>();
 			}
 			// C sqs >= n R.D -> { C sqs >= n R.X, X sqs D }
-			if (!minCardSuperClass.getFiller().getClassExpressionType().equals(ClassExpressionType.OWL_CLASS))
-				return Utils.toSet(Utils.factory.getOWLSubClassOfAxiom(subClass,
-						Utils.factory.getOWLObjectMinCardinality(minCardSuperClass.getCardinality(),
-								minCardSuperClass.getProperty(), Utils.getCorrespondingFreshClass(minCardSuperClass))),
-						Utils.factory.getOWLSubClassOfAxiom(Utils.getCorrespondingFreshClass(minCardSuperClass),
-								minCardSuperClass.getFiller()));
+			if (!minCardSuperClass.getFiller().getClassExpressionType().equals(ClassExpressionType.OWL_CLASS)) {
+				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(minCardSuperClass);
+				return Utils.toSet(
+						Utils.factory.getOWLSubClassOfAxiom(subClass,
+								Utils.factory.getOWLObjectMinCardinality(minCardSuperClass.getCardinality(),
+										minCardSuperClass.getProperty(), freshClass)),
+						Utils.factory.getOWLSubClassOfAxiom(freshClass, minCardSuperClass.getFiller()));
+			}
 			break;
 
 		// C sqs <= n R.D
@@ -297,13 +299,12 @@ public class SubClassOfAxNormalizer {
 
 				// C sqs <= n R.D -> { C sqs <= n R.X, D sqs X }
 			} else if (!maxCardSuperClassFiller.isOWLClass()) {
+				final OWLClassExpression freshClass = Utils.getCorrespondingFreshClass(maxCardSuperClassFiller);
 				return Utils.toSet(
 						Utils.factory.getOWLSubClassOfAxiom(subClass,
 								Utils.factory.getOWLObjectMaxCardinality(maxCardSuperClass.getCardinality(),
-										maxCardSuperClass.getProperty(),
-										Utils.getCorrespondingFreshClass(maxCardSuperClassFiller))),
-						Utils.factory.getOWLSubClassOfAxiom(maxCardSuperClass.getFiller(),
-								Utils.getCorrespondingFreshClass(maxCardSuperClassFiller)));
+										maxCardSuperClass.getProperty(), freshClass)),
+						Utils.factory.getOWLSubClassOfAxiom(maxCardSuperClass.getFiller(), freshClass));
 			}
 			break;
 
