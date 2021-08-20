@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.model.ClassExpressionType;
@@ -31,6 +30,7 @@ import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLPairwiseVoidVisitor;
 import org.semanticweb.owlapi.model.OWLReflexiveObjectPropertyAxiom;
 import org.semanticweb.owlapi.model.OWLSameIndividualAxiom;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
@@ -107,15 +107,15 @@ public class MainNormalizer implements NormalizerInterface {
 		switch (logicalAx.getAxiomType().toString()) {
 		// TBox
 		case "DisjointClasses":
-			this.subClassOfAxs.addAll(disjointClassesAxToSubClassOfAxs((OWLDisjointClassesAxiom) logicalAx));
+			this.subClassOfAxs.addAll(disjointClassesAxiomToSubClassOfAxioms((OWLDisjointClassesAxiom) logicalAx));
 			break;
 
 		case "DisjointUnion":
 			final OWLDisjointUnionAxiom disjointUnionAxiom = (OWLDisjointUnionAxiom) logicalAx;
 			this.subClassOfAxs
-					.addAll(disjointClassesAxToSubClassOfAxs(disjointUnionAxiom.getOWLDisjointClassesAxiom()));
-			this.subClassOfAxs
-					.addAll(equivalentClassesAxToSubClassOfAxs(disjointUnionAxiom.getOWLEquivalentClassesAxiom()));
+					.addAll(disjointClassesAxiomToSubClassOfAxioms(disjointUnionAxiom.getOWLDisjointClassesAxiom()));
+			this.subClassOfAxs.addAll(
+					equivalentClassesAxiomToSubClassOfAxioms(disjointUnionAxiom.getOWLEquivalentClassesAxiom()));
 			break;
 
 		case "InverseFunctionalObjectProperty":
@@ -132,7 +132,7 @@ public class MainNormalizer implements NormalizerInterface {
 			break;
 
 		case "EquivalentClasses":
-			this.subClassOfAxs.addAll(equivalentClassesAxToSubClassOfAxs((OWLEquivalentClassesAxiom) logicalAx));
+			this.subClassOfAxs.addAll(equivalentClassesAxiomToSubClassOfAxioms((OWLEquivalentClassesAxiom) logicalAx));
 			break;
 
 		case "FunctionalObjectProperty":
@@ -177,13 +177,8 @@ public class MainNormalizer implements NormalizerInterface {
 			break;
 
 		case "EquivalentObjectProperties":
-			final Set<OWLObjectPropertyExpression> equivalentObjProps = ((OWLEquivalentObjectPropertiesAxiom) logicalAx)
-					.properties().collect(Collectors.toSet());
-			for (final OWLObjectPropertyExpression equivalentObjPropi : equivalentObjProps)
-				for (final OWLObjectPropertyExpression equivalentObjPropj : equivalentObjProps)
-					if (!equivalentObjPropi.equals(equivalentObjPropj))
-						this.simpleObjPropInclusionAxs.add(
-								Utils.factory.getOWLSubObjectPropertyOfAxiom(equivalentObjPropi, equivalentObjPropj));
+			this.simpleObjPropInclusionAxs.addAll(equivalentObjPropertiesAxiomToSubObjPropertiesAxioms(
+					(OWLEquivalentObjectPropertiesAxiom) logicalAx));
 			break;
 
 		case "InverseObjectProperties":
@@ -214,8 +209,6 @@ public class MainNormalizer implements NormalizerInterface {
 					.getProperty();
 			this.complexObjPropInclusionAxs.add(Utils.factory.getOWLSubPropertyChainOfAxiom(
 					Arrays.asList(transitiveObjProp, transitiveObjProp), transitiveObjProp));
-
-//				complexObjPropInclusionAxs.add(new OWLSubPropertyChainAxiomImpl(Utils.toList(transitiveObjProp, transitiveObjProp), transitiveObjProp, new HashSet<OWLAnnotation>()));
 			break;
 
 		// Rules
@@ -285,39 +278,55 @@ public class MainNormalizer implements NormalizerInterface {
 		return logicalAx.dataPropertiesInSignature().count() != 0 || logicalAx.datatypesInSignature().count() != 0;
 	}
 
-	// FIXME what do we do with this?
+	static Set<OWLSubObjectPropertyOfAxiom> equivalentObjPropertiesAxiomToSubObjPropertiesAxioms(
+			final OWLEquivalentObjectPropertiesAxiom logicalAx) {
+		final Set<OWLSubObjectPropertyOfAxiom> subObjectPropAxioms = new HashSet<>();
+		logicalAx.forEachAllPairs(new OWLPairwiseVoidVisitor<OWLObjectPropertyExpression>() {
+
+			@Override
+			public void visit(final OWLObjectPropertyExpression a, final OWLObjectPropertyExpression b) {
+				subObjectPropAxioms.add(Utils.factory.getOWLSubObjectPropertyOfAxiom(a, b));
+			}
+		});
+		return subObjectPropAxioms;
+	}
+
 	/**
 	 * Transforms this axiom to an equivalent set of OWLSubClassOfAxiom axioms.
 	 * <code>( C1 and C2 ) subClassOf Bottom</code> <br>
 	 * For each pair of disjoint classes in the OWLDisjointClassesAxiom, create a
 	 * new OWLSubClassOfAxiom axiom.
 	 *
-	 * @param axiom axiom to normalize to a set of OWLSubClassOfAxiom axioms.
+	 * @param disjointClassesAxiom axiom to normalize to a set of OWLSubClassOfAxiom
+	 *                             axioms.
 	 */
-	public static Set<OWLSubClassOfAxiom> disjointClassesAxToSubClassOfAxs(final OWLDisjointClassesAxiom axiom) {
+	static Set<OWLSubClassOfAxiom> disjointClassesAxiomToSubClassOfAxioms(
+			final OWLDisjointClassesAxiom disjointClassesAxiom) {
 		final Set<OWLSubClassOfAxiom> subClassOfAxioms = new HashSet<OWLSubClassOfAxiom>();
 
-		for (final OWLDisjointClassesAxiom pairwiseDisjointClassesAxiom : axiom.asPairwiseAxioms()) {
-			if (pairwiseDisjointClassesAxiom.classExpressions().count() != 2) {
-				throw new RuntimeException("Expected Pairwise disjoint classes axiom: " + pairwiseDisjointClassesAxiom);
+		disjointClassesAxiom.forEach(new OWLPairwiseVoidVisitor<OWLClassExpression>() {
+			@Override
+			public void visit(final OWLClassExpression a, final OWLClassExpression b) {
+				final OWLObjectIntersectionOf intersection = Utils.factory.getOWLObjectIntersectionOf(a, b);
+				subClassOfAxioms
+						.add(Utils.factory.getOWLSubClassOfAxiom(intersection, InternalizedEntities.OWL_NOTHING));
 			}
-			/* Normalize to ( C1 and C2 ) subClassOf Bottom */
-			final OWLObjectIntersectionOf intersection = Utils.factory
-					.getOWLObjectIntersectionOf(pairwiseDisjointClassesAxiom.classExpressions());
-			subClassOfAxioms.add(Utils.factory.getOWLSubClassOfAxiom(intersection, InternalizedEntities.OWL_NOTHING));
-		}
+		});
+
 		return subClassOfAxioms;
 	}
 
-	private static Set<OWLSubClassOfAxiom> equivalentClassesAxToSubClassOfAxs(
+	static Set<OWLSubClassOfAxiom> equivalentClassesAxiomToSubClassOfAxioms(
 			final OWLEquivalentClassesAxiom equivalentClassesAxiom) {
 		final Set<OWLSubClassOfAxiom> subClassOfAxs = new HashSet<>();
-		final Set<OWLClassExpression> equivalentClasses = equivalentClassesAxiom.classExpressions()
-				.collect(Collectors.toSet());
-		for (final OWLClassExpression equivalentClassi : equivalentClasses)
-			for (final OWLClassExpression equivalentClassj : equivalentClasses)
-				if (!equivalentClassi.equals(equivalentClassj))
-					subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(equivalentClassi, equivalentClassj));
+
+		equivalentClassesAxiom.forEachAllPairs(new OWLPairwiseVoidVisitor<OWLClassExpression>() {
+			@Override
+			public void visit(final OWLClassExpression a, final OWLClassExpression b) {
+				subClassOfAxs.add(Utils.factory.getOWLSubClassOfAxiom(a, b));
+			}
+		});
+
 		return subClassOfAxs;
 	}
 
